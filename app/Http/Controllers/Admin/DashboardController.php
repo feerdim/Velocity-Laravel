@@ -22,9 +22,9 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        $player = VsOneSchedule::get();
+        // $player = VsOneSchedule::get();
         // $player = GameMaster::get();
-        dd($player);
+        // dd($player);
         $total_transaction = TopupCharge::sum('grand_total');
         $total_player = Player::get()->count();
         $total_competition = PlayerSchedule::get()->count();
