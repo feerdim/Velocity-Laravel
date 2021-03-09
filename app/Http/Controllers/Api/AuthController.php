@@ -111,48 +111,49 @@ class AuthController extends Controller
     {
         $google_client_id = Config::get('app.google_client_id');
         $client = new Google_Client(['client_id' => $google_client_id]);  // Specify the CLIENT_ID of the app that accesses the backend
-        $payload = $client->verifyIdToken($request->id_token);
-        if ($payload) {
-            $player = Player::where('email', $payload['email'])->first();
-            if(!$player) {
-                // random password
-                $length = 10;
-                $random = '';
-                for ($i = 0; $i < $length; $i++) {
-                    $random .= rand(0, 1) ? rand(0, 9) : chr(rand(ord('a'), ord('z')));
+        if($request->id_token != NULL){
+            $payload = $client->verifyIdToken($request->id_token);
+            if ($payload) {
+                $player = Player::where('email', $payload['email'])->first();
+                if(!$player) {
+                    // random password
+                    $length = 10;
+                    $random = '';
+                    for ($i = 0; $i < $length; $i++) {
+                        $random .= rand(0, 1) ? rand(0, 9) : chr(rand(ord('a'), ord('z')));
+                    }
+
+                    $randomString = Str::upper($random);
+                    
+                    $player = Player::create([
+                        'name'      => $payload['name'],
+                        'email'     => $payload['email'],
+                        'password'  => Hash::make($randomString),
+                        'crown' => 0,
+                        'score' => 0,
+                        'avatar' => $payload['picture']
+                    ]);
+                    $token = JWTAuth::fromUser($player);
+                    return response()->json([
+                        'success' => true,
+                        'user'    => $player,  
+                        'token'   => $token   
+                    ], 200);
+                } else {
+                    $token = JWTAuth::fromUser($player);
+                    return response()->json([
+                        'success' => true,
+                        'user'    => $player,  
+                        'token'   => $token   
+                    ], 200);
                 }
-
-                $randomString = Str::upper($random);
-                
-                $player = Player::create([
-                    'name'      => $payload['name'],
-                    'email'     => $payload['email'],
-                    'password'  => Hash::make($randomString),
-                    'crown' => 0,
-                    'score' => 0,
-                    'avatar' => $payload['picture']
-                ]);
-                $token = JWTAuth::fromUser($player);
-                return response()->json([
-                    'success' => true,
-                    'user'    => $player,  
-                    'token'   => $token   
-                ], 200);
             } else {
-                $token = JWTAuth::fromUser($player);
                 return response()->json([
-                    'success' => true,
-                    'user'    => $player,  
-                    'token'   => $token   
-                ], 200);
+                    'success' => false,
+                    'message' => 'cannot login with google'
+                ], 401);
             }
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'cannot login with google'
-            ], 401);
         }
-
     }
     
     /**

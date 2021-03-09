@@ -22,11 +22,9 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        $player = Player::find(4);
-        $player->update([
-            'crown' => 1000,
-        ]);
-        // dd($player);
+        $player = VsOneSchedule::get();
+        // $player = GameMaster::get();
+        dd($player);
         $total_transaction = TopupCharge::sum('grand_total');
         $total_player = Player::get()->count();
         $total_competition = PlayerSchedule::get()->count();

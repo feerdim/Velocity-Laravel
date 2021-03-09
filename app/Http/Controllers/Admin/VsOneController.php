@@ -62,6 +62,7 @@ class VsOneController extends Controller
             ->where('type_id', $vs_one->id)->get();
             return view('admin.vs_one_schedule.index', compact('solos', 'teams'));
         } else {
+            abort(404);
             return view('admin.vs_one_schedule.index');            
         }
     }
@@ -90,30 +91,45 @@ class VsOneController extends Controller
         if(count($request->input('teams')) !== 2) {
             return redirect()->route('admin.vs_one_schedule.index')->with(['error' => 'Minimal 2 player !']);
         } else {
-            $vs_one_schedule = VsOneSchedule::whereIn('id', $request->input('teams'))
+            $vs_one_schedules = VsOneSchedule::whereIn('id', $request->input('teams'))
             ->where('type_id', $vs_one->id)
             ->where('game_status', 'pending')
             ->get();
-            // dd($vs_one_schedule);
-            if($vs_one_schedule) {
+            // dd($vs_one_schedules);
+            if($vs_one_schedules) {
                 $game_master = GameMaster::create([
                     'room_id' => $room_id,
                     'user_id' => auth()->user()->id
                 ]);
-                VsOneSchedule::whereIn('id', $request->input('teams'))
-                ->where('type_id', $vs_one->id)
-                ->where('game_status', 'pending')
-                ->update([ 
-                    'game_master_id' => $game_master->id, 
-                    'game_status' => 'playing',
-                    'time' => Carbon::now()->addMinute(10),
-                ]);
+                foreach($vs_one_schedules as $vs_one_schedule){
+                    if($vs_one_schedule->id == $request->game_master){
+                        $is_game_master = true;
+                    }
+                    else{
+                        $is_game_master = false;
+                    }
+                    $vs_one_schedule->update([
+                        'game_master_id' => $game_master->id, 
+                        'game_status' => 'playing',
+                        'time' => Carbon::now()->addMinute(10),
+                        'is_game_master' => $is_game_master,
+                    ]);
+                }
+                // if($request->game_master == )
+                // VsOneSchedule::whereIn('id', $request->input('teams'))
+                // ->where('type_id', $vs_one->id)
+                // ->where('game_status', 'pending')
+                // ->update([ 
+                //     'game_master_id' => $game_master->id, 
+                //     'game_status' => 'playing',
+                //     'time' => Carbon::now()->addMinute(10),
+                // ]);
                 return redirect()->route('admin.vs_one_schedule.index')->with(['success' => 'Ayo Handle Game lainnya !']);
-            } else {
+            } 
+            else {
                 return redirect()->route('admin.vs_one_schedule.index')->with(['error' => 'Internal server error !']);
             }
         }
-
     }
 
     public function historyIndex()

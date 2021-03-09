@@ -75,10 +75,7 @@ class ActivationController extends Controller
                     $loading->account_name = $activation->account_name;
                     $loading->avatar = $player->avatar;
                 }
-                    // dd($player);
             }
-            
-            // $game_master = GameMaster::find($loading->)
         }
         else{
             $loading = PlayerSchedule::where('player_id', auth()->user()->id)

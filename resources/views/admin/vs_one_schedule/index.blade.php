@@ -21,6 +21,7 @@
                           <thead class="thead-light">
                           <tr style="text-align: center">
                               <th scope="col">Selected Team</th>
+                              <th scope="col">Selected Game Master</th>
                               <th scope="col">Booking Time</th>
                               <th scope="col">Player Name</th>
                               <th scope="col">Player Email</th>
@@ -34,6 +35,9 @@
                                         <input class="form-check-input" type="checkbox" value={{ $solo->id }} name="teams[]" id="check-{{ $solo->id }}">
                                       </td>
                                       <td>
+                                        <input class="form-check-input" type="radio" value={{ $solo->id }} name="game_master" id="radio-{{ $solo->id }}">
+                                      </td>
+                                      <td>
                                         {{ date('h:i A', strtotime($solo->created_at)) }}
                                       </td>
                                       <td>
@@ -43,7 +47,7 @@
                                         {{ $solo->player->email }}
                                       </td>
                                       <td>
-                                        <a href="{{ route('admin.vs_one_schedule.refund', [$team->id]) }}" class="btn btn-danger">Refund</a>
+                                        <a href="{{ route('admin.vs_one_schedule.refund', [$solo->id]) }}" class="btn btn-danger">Refund</a>
                                       </td>
                                   </tr>
                               @empty
@@ -72,6 +76,7 @@
                         <thead class="thead-light">
                         <tr style="text-align: center">
                             <th scope="col">Selected Team</th>
+                            <th scope="col">Selected Game Master</th>
                             <th scope="col">Booking Time</th>
                             <th scope="col">Player Name</th>
                             <th scope="col">Player Email</th>
@@ -83,6 +88,9 @@
                                 <tr style="text-align: center">
                                     <td>
                                       <input class="form-check-input" type="checkbox" value={{ $team->id }} name="teams[]" id="check-{{ $team->id }}">
+                                    </td>
+                                    <td>
+                                      <input class="form-check-input" type="radio" value={{ $team->id }} name="game_master" id="radio-{{ $team->id }}">
                                     </td>
                                     <td>
                                       {{ date('h:i A', strtotime($team->created_at)) }}
